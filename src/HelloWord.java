@@ -118,3 +118,148 @@ body{
     color: #444;
     background-attachment: fixed;
 }
+Pour créer deux pages distinctes pour ajouter un employé et supprimer un employé, nous allons structurer le projet avec des fichiers HTML séparés pour chaque page et gérer les interactions via `rh_employee.js`. 
+
+### Structure des fichiers
+
+1. `index.html` - Page d'accueil ou de navigation
+2. `add_employee.html` - Page pour ajouter un employé
+3. `delete_employee.html` - Page pour supprimer un employé
+4. `rh_employee.js` - Fichier JavaScript pour gérer les interactions
+
+### Contenu des fichiers
+
+#### Fichier: `index.html`
+
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <title>RH employées</title>
+    <link rel="stylesheet" href="rh_employee.css" />
+</head>
+<body>
+    <h1>Site de RH employées</h1>
+    <nav>
+        <ul>
+            <li><a href="add_employee.html">Ajouter un employé</a></li>
+            <li><a href="delete_employee.html">Supprimer un employé</a></li>
+        </ul>
+    </nav>
+</body>
+</html>
+```
+
+#### Fichier: `add_employee.html`
+
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <title>Ajouter un employé</title>
+    <link rel="stylesheet" href="rh_employee.css" />
+    <script src="bjs2-js-lib.js"></script>
+</head>
+<body>
+    <h1>Ajouter un employé</h1>
+    <form id="addEmployeeForm">
+        <label for="name">Nom:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="position">Poste:</label>
+        <input type="text" id="position" name="position" required>
+        <button type="submit">Ajouter</button>
+    </form>
+    <script src="rh_employee.js"></script>
+</body>
+</html>
+```
+
+#### Fichier: `delete_employee.html`
+
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <title>Supprimer un employé</title>
+    <link rel="stylesheet" href="rh_employee.css" />
+    <script src="bjs2-js-lib.js"></script>
+</head>
+<body>
+    <h1>Supprimer un employé</h1>
+    <form id="deleteEmployeeForm">
+        <label for="employeeId">ID de l'employé:</label>
+        <input type="text" id="employeeId" name="employeeId" required>
+        <button type="submit">Supprimer</button>
+    </form>
+    <script src="rh_employee.js"></script>
+</body>
+</html>
+```
+
+#### Fichier: `rh_employee.js`
+
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+    // Gestion du formulaire d'ajout d'employé
+    const addEmployeeForm = document.getElementById('addEmployeeForm');
+    if (addEmployeeForm) {
+        addEmployeeForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const name = addEmployeeForm.name.value;
+            const email = addEmployeeForm.email.value;
+            const position = addEmployeeForm.position.value;
+
+            const newEmployee = {
+                name: name,
+                email: email,
+                position: position
+            };
+
+            simple_fetch('http://your-api-url/employees', {
+                method: 'POST',
+                postJson: newEmployee,
+                responseType: 'json'
+            })
+            .then(response => {
+                console.log('Employee added:', response);
+                addEmployeeForm.reset();
+            })
+            .catch(error => {
+                console.error('There was an error adding the employee!', error);
+            });
+        });
+    }
+
+    // Gestion du formulaire de suppression d'employé
+    const deleteEmployeeForm = document.getElementById('deleteEmployeeForm');
+    if (deleteEmployeeForm) {
+        deleteEmployeeForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const employeeId = deleteEmployeeForm.employeeId.value;
+
+            simple_fetch(`http://your-api-url/employees/${employeeId}`, {
+                method: 'DELETE',
+                responseType: 'json'
+            })
+            .then(response => {
+                console.log('Employee deleted:', response);
+                deleteEmployeeForm.reset();
+            })
+            .catch(error => {
+                console.error('There was an error deleting the employee!', error);
+            });
+        });
+    }
+});
+```
+
+### Résumé
+
+Avec ces fichiers, vous avez deux pages distinctes (`add_employee.html` et `delete_employee.html`) pour ajouter et supprimer des employés. Le fichier JavaScript `rh_employee.js` gère les interactions pour les deux pages en utilisant la fonction `simple_fetch` définie dans `bjs2-js-lib.js`. Assurez-vous de remplacer `http://your-api-url/employees` par l'URL réelle de votre API REST.
